@@ -88,9 +88,9 @@ def get_node_identifier(node_url):
 def filter_content(content):
     """
     过滤内容：
-    1. 只保留以代理协议开头的行
-    2. 确保每行都是完整的节点信息
-    3. 对特定协议的内容进行解码验证
+    1. 检查内容是否需要base64解密
+    2. 只保留以代理协议开头的行
+    3. 确保每行都是完整的节点信息
     4. 去除重复节点
     """
     if not content:
@@ -98,6 +98,14 @@ def filter_content(content):
     
     # 支持的代理协议
     PROXY_PROTOCOLS = ('vmess://', 'ss://', 'ssr://', 'trojan://', 'vless://')
+    
+    # 检查内容是否需要base64解密
+    if '://' not in content and is_base64(content):
+        try:
+            content = base64.b64decode(content).decode('utf-8')
+        except Exception as e:
+            print(f"Base64解码失败: {str(e)}")
+            return ""
     
     # 按行分割并去除空白字符
     lines = [line.strip() for line in content.split('\n') if line.strip()]
