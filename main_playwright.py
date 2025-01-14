@@ -6,6 +6,10 @@ from pathlib import Path
 import base64
 import json
 from urllib.parse import unquote
+import urllib3
+
+# 禁用 SSL 警告
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 def is_base64(s):
     """检查字符串是否为base64编码"""
