@@ -135,7 +135,7 @@ def filter_content(content):
     
     return ""
 
-def get_xiaoxi_info():
+def get_xiaoxi_data():
     try:
         print('开始启动浏览器...')
         with sync_playwright() as p:
@@ -237,7 +237,7 @@ def get_xiaoxi_info():
         print('执行过程中发生错误:')
         print({'success': False, 'error': str(e)})
 
-def get_nodefree_info():
+def get_nodefree_data():
     """获取 nodefree 的节点信息并保存到文件"""
     try:
         # 构建当前日期的URL
@@ -326,10 +326,92 @@ def merge_node_files():
     except Exception as e:
         print(f"合并节点文件时发生错误: {str(e)}")
 
+def get_subscribe_data(subscribe_urls):
+    """
+    获取订阅节点数据
+    :param subscribe_urls: 订阅URL列表，例如 ['http://example1.com/sub', 'http://example2.com/sub']
+    """
+    try:
+        # 确保node文件夹存在
+        node_dir = ensure_node_dir()
+        
+        # 用于存储所有获取到的节点
+        all_nodes = []
+        
+        # 遍历订阅地址
+        for index, url in enumerate(subscribe_urls, 1):
+            try:
+                print(f'正在获取第 {index} 个订阅，URL: {url}')
+                
+                # 发送请求获取订阅内容
+                response = requests.get(
+                    url,
+                    verify=False,  # 忽略SSL证书验证
+                    headers={
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
+                    },
+                    timeout=30
+                )
+                
+                # 检查响应状态
+                if response.status_code == 200:
+                    # 获取内容并过滤
+                    content = response.text
+                    if content and content.strip():
+                        filtered_content = filter_content(content)
+                        if filtered_content:
+                            all_nodes.append(filtered_content)
+                            print(f'第 {index} 个订阅获取成功')
+                        else:
+                            print(f'第 {index} 个订阅过滤后内容为空')
+                    else:
+                        print(f'第 {index} 个订阅获取的内容为空')
+                else:
+                    print(f'第 {index} 个订阅请求失败，状态码: {response.status_code}')
+                    
+            except Exception as e:
+                print(f'获取第 {index} 个订阅时发生错误: {str(e)}')
+                continue
+        
+        # 合并所有获取到的节点并去重
+        if all_nodes:
+            merged_content = '\n'.join(all_nodes)
+            final_content = filter_content(merged_content)
+            
+            if final_content:
+                # 保存到文件
+                with open(node_dir / 'subscribe.txt', 'w', encoding='utf-8') as f:
+                    f.write(final_content)
+                print('订阅节点数据已保存到 node/subscribe.txt 文件')
+                return True
+            else:
+                print('合并后的订阅内容为空')
+        else:
+            print('没有获取到任何有效的订阅内容')
+            
+    except Exception as e:
+        print(f'获取订阅节点时发生错误: {str(e)}')
+    
+    return False
+
 if __name__ == '__main__':
+    # 订阅地址列表
+    subscribe_urls = [
+        'https://raw.githubusercontent.com/Pawdroid/Free-servers/main/sub',
+        'https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.txt',
+        'https://raw.githubusercontent.com/aiboboxx/v2rayfree/main/v2',
+        'https://raw.githubusercontent.com/roosterkid/openproxylist/main/V2RAY_BASE64.txt',
+        'https://raw.githubusercontent.com/vpnmarket/sub/refs/heads/main/hiddify1.txt',
+        'https://raw.githubusercontent.com/vpnmarket/sub/refs/heads/main/hiddify2.txt',
+        'https://raw.githubusercontent.com/vpnmarket/sub/refs/heads/main/hiddify3.txt',
+        'https://vless1.wqpvless.us.kg/a5fc5111-ee14-415c-9c86-7f2e0a1205ca',
+        'https://vless2.wqpvless.us.kg/90928fa3-8d8e-7fcb-0158-02edf71b530e'
+    ]
+    
     # 获取节点
-    get_nodefree_info()
-    get_xiaoxi_info()
+    get_nodefree_data()
+    get_xiaoxi_data()
+    get_subscribe_data(subscribe_urls)
     
     # 合并节点文件
     merge_node_files()
