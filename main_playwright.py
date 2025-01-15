@@ -7,6 +7,7 @@ import base64
 import json
 from urllib.parse import unquote
 import urllib3
+import os
 
 # 禁用 SSL 警告
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -134,7 +135,7 @@ def filter_content(content):
     
     return ""
 
-def get_node_info():
+def get_xiaoxi_info():
     try:
         print('开始启动浏览器...')
         with sync_playwright() as p:
@@ -221,10 +222,12 @@ def get_node_info():
                 filtered_content = filter_content(content)
                 
                 if filtered_content:
-                    # 直接写入过滤后的节点内容
-                    with open('xiaoxi.txt', 'w', encoding='utf-8') as f:
+                    # 确保node文件夹存在
+                    node_dir = ensure_node_dir()
+                    # 保存到node文件夹下
+                    with open(node_dir / 'xiaoxi.txt', 'w', encoding='utf-8') as f:
                         f.write(filtered_content)
-                    print('数据已保存到xiaoxi.txt文件')
+                    print('数据已保存到 node/xiaoxi.txt 文件')
                 else:
                     print('过滤后的内容为空，未保存文件')
             else:
@@ -261,10 +264,12 @@ def get_nodefree_info():
                 filtered_content = filter_content(content)
                 
                 if filtered_content:
-                    # 保存到文件
-                    with open('nodefree.txt', 'w', encoding='utf-8') as f:
+                    # 确保node文件夹存在
+                    node_dir = ensure_node_dir()
+                    # 保存到node文件夹下
+                    with open(node_dir / 'nodefree.txt', 'w', encoding='utf-8') as f:
                         f.write(filtered_content)
-                    print('nodefree节点数据已保存到nodefree.txt文件')
+                    print('nodefree节点数据已保存到 node/nodefree.txt 文件')
                     return True
                 else:
                     print('nodefree过滤后的内容为空')
@@ -279,7 +284,53 @@ def get_nodefree_info():
     
     return False
 
+def ensure_node_dir():
+    """确保node文件夹存在"""
+    node_dir = Path('node')
+    if not node_dir.exists():
+        node_dir.mkdir()
+    return node_dir
+
+def merge_node_files():
+    """合并所有节点文件并去重"""
+    try:
+        # 确保node文件夹存在
+        node_dir = ensure_node_dir()
+        
+        # 收集所有节点内容
+        all_content = []
+        for file in node_dir.glob('*.txt'):
+            try:
+                with open(file, 'r', encoding='utf-8') as f:
+                    content = f.read().strip()
+                    if content:
+                        all_content.append(content)
+            except Exception as e:
+                print(f"读取文件 {file} 失败: {str(e)}")
+        
+        # 合并所有内容并过滤去重
+        if all_content:
+            merged_content = '\n'.join(all_content)
+            filtered_content = filter_content(merged_content)
+            
+            if filtered_content:
+                # 保存去重后的内容到all.txt
+                with open('all.txt', 'w', encoding='utf-8') as f:
+                    f.write(filtered_content)
+                print('所有节点已合并并去重保存到 all.txt')
+            else:
+                print('合并后的内容为空，未保存文件')
+        else:
+            print('没有找到任何节点内容')
+            
+    except Exception as e:
+        print(f"合并节点文件时发生错误: {str(e)}")
+
 if __name__ == '__main__':
-    # 先获取节点
-    get_node_info()
+    # 获取节点
     get_nodefree_info()
+    get_xiaoxi_info()
+    
+    # 合并节点文件
+    merge_node_files()
+    
