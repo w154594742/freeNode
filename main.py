@@ -418,8 +418,6 @@ if __name__ == '__main__':
         'https://raw.githubusercontent.com/vpnmarket/sub/refs/heads/main/hiddify1.txt',
         'https://raw.githubusercontent.com/vpnmarket/sub/refs/heads/main/hiddify2.txt',
         'https://raw.githubusercontent.com/vpnmarket/sub/refs/heads/main/hiddify3.txt',
-        'https://vless1.wqpvless.us.kg/a5fc5111-ee14-415c-9c86-7f2e0a1205ca',
-        'https://vless2.wqpvless.us.kg/90928fa3-8d8e-7fcb-0158-02edf71b530e'
     ]
     
     # 获取节点
