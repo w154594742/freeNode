@@ -135,6 +135,21 @@ def filter_content(content):
     
     return ""
 
+def save_to_file(content, filepath):
+    """
+    保存内容到文件，内容会被base64编码
+    """
+    try:
+        # base64编码
+        encoded_content = base64.b64encode(content.encode('utf-8')).decode('utf-8')
+        # 保存到文件
+        with open(filepath, 'w', encoding='utf-8') as f:
+            f.write(encoded_content)
+        return True
+    except Exception as e:
+        print(f"保存文件失败: {str(e)}")
+        return False
+
 def get_xiaoxi_data():
     try:
         print('开始启动浏览器...')
@@ -224,10 +239,8 @@ def get_xiaoxi_data():
                 if filtered_content:
                     # 确保node文件夹存在
                     node_dir = ensure_node_dir()
-                    # 保存到node文件夹下
-                    with open(node_dir / 'xiaoxi.txt', 'w', encoding='utf-8') as f:
-                        f.write(filtered_content)
-                    print('数据已保存到 node/xiaoxi.txt 文件')
+                    if save_to_file(filtered_content, node_dir / 'xiaoxi.txt'):
+                        print('数据已保存到 node/xiaoxi.txt 文件')
                 else:
                     print('过滤后的内容为空，未保存文件')
             else:
@@ -266,10 +279,8 @@ def get_nodefree_data():
                 if filtered_content:
                     # 确保node文件夹存在
                     node_dir = ensure_node_dir()
-                    # 保存到node文件夹下
-                    with open(node_dir / 'nodefree.txt', 'w', encoding='utf-8') as f:
-                        f.write(filtered_content)
-                    print('nodefree节点数据已保存到 node/nodefree.txt 文件')
+                    if save_to_file(filtered_content, node_dir / 'nodefree.txt'):
+                        print('nodefree节点数据已保存到 node/nodefree.txt 文件')
                     return True
                 else:
                     print('nodefree过滤后的内容为空')
@@ -302,9 +313,14 @@ def merge_node_files():
         for file in node_dir.glob('*.txt'):
             try:
                 with open(file, 'r', encoding='utf-8') as f:
-                    content = f.read().strip()
-                    if content:
-                        all_content.append(content)
+                    encoded_content = f.read().strip()
+                    if encoded_content:
+                        # base64解码
+                        try:
+                            content = base64.b64decode(encoded_content).decode('utf-8')
+                            all_content.append(content)
+                        except Exception as e:
+                            print(f"解码文件 {file} 失败: {str(e)}")
             except Exception as e:
                 print(f"读取文件 {file} 失败: {str(e)}")
         
@@ -315,9 +331,8 @@ def merge_node_files():
             
             if filtered_content:
                 # 保存去重后的内容到all.txt
-                with open('all.txt', 'w', encoding='utf-8') as f:
-                    f.write(filtered_content)
-                print('所有节点已合并并去重保存到 all.txt')
+                if save_to_file(filtered_content, 'all.txt'):
+                    print('所有节点已合并并去重保存到 all.txt')
             else:
                 print('合并后的内容为空，未保存文件')
         else:
@@ -380,9 +395,8 @@ def get_subscribe_data(subscribe_urls):
             
             if final_content:
                 # 保存到文件
-                with open(node_dir / 'subscribe.txt', 'w', encoding='utf-8') as f:
-                    f.write(final_content)
-                print('订阅节点数据已保存到 node/subscribe.txt 文件')
+                if save_to_file(final_content, node_dir / 'subscribe.txt'):
+                    print('订阅节点数据已保存到 node/subscribe.txt 文件')
                 return True
             else:
                 print('合并后的订阅内容为空')
