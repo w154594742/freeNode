@@ -25,13 +25,6 @@ jobs:
         pip install -r requirements.txt
         playwright install chromium
     
-    - name: Download v2ray
-      run: |
-        mkdir -p v2ray
-        wget https://github.com/v2fly/v2ray-core/releases/latest/download/v2ray-linux-64.zip
-        unzip v2ray-linux-64.zip -d v2ray/
-        chmod +x v2ray/v2ray
-    
     - name: Run script
       run: python main.py
     
