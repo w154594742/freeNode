@@ -8,6 +8,8 @@ on:
 jobs:
   update:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write    # 添加写入权限
     
     steps:
     - uses: actions/checkout@v2
