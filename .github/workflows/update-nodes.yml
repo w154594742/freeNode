@@ -33,7 +33,7 @@ jobs:
         chmod +x v2ray/v2ray
     
     - name: Run script
-      run: python main_playwright.py
+      run: python main.py
     
     - name: Commit and push if changed
       run: |
