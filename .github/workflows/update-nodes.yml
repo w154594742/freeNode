@@ -9,7 +9,7 @@ jobs:
   update:
     runs-on: ubuntu-latest
     permissions:
-      contents: write    # 添加写入权限
+      contents: write
     
     steps:
     - uses: actions/checkout@v2
