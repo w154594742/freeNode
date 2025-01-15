@@ -2,7 +2,7 @@ name: Update Nodes
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # 每天 UTC 0:00 运行
+    - cron: '20 0 * * *'  # 每天 UTC 0:20 运行 (北京时间 8:20)
   workflow_dispatch:      # 允许手动触发
 
 jobs:
